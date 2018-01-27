@@ -49,6 +49,24 @@ angolaSummarizedBattleAnalysis <- function(battle_analysis)
            cum_percent_higher = 1 - cum_percent_lower + result_percent)
 }
 
+determineDiceCounts <- function(terrain, defending_town_or_city, defending_escarpment, defending_minefield)
+{
+  attacker_dice <- 1
+  defender_dice <- 1
+  
+  if (terrain == "Clear") {
+    attacker_dice <- 2
+  } else if (terrain == "Hills or Jungle") {
+    defender_dice <- 2
+  }
+  
+  defender_dice <- ifelse(defending_town_or_city, defender_dice + 1, defender_dice)
+  defender_dice <- ifelse(defending_escarpment, defender_dice + 1, defender_dice)
+  defender_dice <- ifelse(defending_minefield, defender_dice + 1, defender_dice)
+  
+  list(attacker_dice = attacker_dice, defender_dice = defender_dice)
+}
+
 testBattleResults <- function()
 {
   attacker_dice <- 1

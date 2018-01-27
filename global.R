@@ -1,3 +1,3 @@
 library(dplyr)
 
-source("/scripts/battle_analysis.R")
+source("scripts/battle_analysis.R")
