@@ -17,14 +17,13 @@ shinyUI(fluidPage(
       checkboxInput("defendEscarpment", label = "Defending Upside Escarpment", value = FALSE),
       checkboxInput("defendMinefield", label = "Defending Minefield", value = FALSE),
       br(),
-      selectInput("terrainType", "Defending Terrain:", choices = c("Clear", "Savannah", "Hills or Jungle")),
-      br(),
-      actionButton("btnRecalc", "Recalculate")
+      selectInput("terrainType", "Defending Terrain:", choices = c("Clear", "Savannah", "Hills or Jungle"))
     ),
     
     # Show a plot of the generated distribution
     mainPanel(
-      wellPanel(fluidRow(column(width = 12, dataTableOutput("tblBattleResults"))))
+      wellPanel(fluidRow(column(width = 12, dataTableOutput("tblBattleResults"))),
+                fluidRow(column(width = 12, dataTableOutput("tblCombatReslts"))))
     )
   )
 ))

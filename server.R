@@ -23,6 +23,25 @@ shinyServer(function(input, output) {
     
   })
   
+  output$tblCombatReslts <- DT::renderDataTable({
+    combat_results <- agolaCombatResults(battle_summary(), input$attackStrength, input$defenseStrength) %>%
+      select(combat_odds, result_descr, result_percent)
+    
+    column_names <- c("Combat Odds", "Combat Result", "Expected Probability (%)")
+    
+    datatable(data = combat_results,
+              colnames = column_names, 
+              rownames = FALSE, 
+              filter = "none", 
+              autoHideNavigation = TRUE, 
+              options = list(
+                autoWidth = TRUE,
+                scrollX = TRUE,
+                dom = "tB")) %>%
+      formatPercentage(c("result_percent"), digits = 2)
+    
+  })
+  
   battle_summary <- reactive({
     
     dice <- determineDiceCounts(terrain = input$terrainType, 

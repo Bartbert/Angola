@@ -59,6 +59,64 @@ angolaSummarizedBattleAnalysis <- function(battle_analysis)
            cum_percent_higher = 1 - cum_percent_lower + result_percent)
 }
 
+agolaCombatResults <- function(battle_summary, attack_strength, defense_strength)
+{
+  result_table <- data.frame(id = 9:1,
+                             attack_strength = c(6, 5, 4, 3, 2, 1, 1, 1, 1),
+                             defense_strength = c(1, 1, 1, 1, 1, 1, 2, 3, 4),
+                             combat_odds = c("6:1", "5:1", "4:1", "3:1", "2:1", "1:1", "1:2", "1:3", "1:4"),
+                             result_descr = c("Defenders Eliminated", 
+                                              "2/3rds Defenders Eliminated; Defenders Retreat", 
+                                              "1/2 Defenders Eliminated; Defenders Retreat", 
+                                              "1/3rd Defenders Eliminated; Defenders Retreat",
+                                              "Defenders Retreat",
+                                              "Combat Continues",
+                                              "Attackers Retreat",
+                                              "1/3rd Attackers Eliminated; Attackers Retreat",
+                                              "1/2 Attackers Eliminated; Attackers Retreat")) %>%
+    mutate(combat_ratio = attack_strength / defense_strength)
+  
+  combat_ratio <- attack_strength / defense_strength
+  
+  initial_id <- 0
+  
+  for (i in 1:nrow(result_table))
+  {
+    if (i == 1 && combat_ratio >= result_table$combat_ratio[i])
+    {
+      initial_id <- result_table$id[i]
+      break()
+    }
+    
+    if (i != nrow(result_table) && combat_ratio >= result_table$combat_ratio[i + 1] && combat_ratio < result_table$combat_ratio[i])
+    {
+      initial_id <- result_table$id[i + 1]
+      break()
+    }
+    
+    if (i == nrow(result_table) && combat_ratio <= result_table$combat_ratio[i])
+    {
+      initial_id <- result_table$id[i]
+      break()
+    }
+    
+  }
+  
+  adjustments <- battle_summary %>%
+    mutate(id = case_when(adjustment == "Down 3 levels (-6 or worse)" ~ as.integer(max(initial_id - 3, 1)),
+                          adjustment == "Down 2 levels (-4,-5)" ~ as.integer(max(initial_id - 2, 1)),
+                          adjustment == "Down 1 level  (-2, -3)" ~ as.integer(max(initial_id - 1, 1)),
+                          adjustment == "No Adjustment (+1, 0, -1)" ~ initial_id,
+                          adjustment == "Up 1 level    (+3, +2)" ~ as.integer(min(initial_id + 1, 9)),
+                          adjustment == "Up 2 levels   (+5, +4)" ~ as.integer(min(initial_id + 2, 9)),
+                          adjustment == "Up 3 levels   (+6 or better)" ~ as.integer(min(initial_id + 3, 9))))
+  
+  result <- result_table %>%
+    left_join(select(adjustments, id, result_percent), "id") %>%
+    mutate(result_percent = if_else(is.na(result_percent), 0.0, result_percent))
+  
+}
+
 determineDiceCounts <- function(terrain, defending_town_or_city, defending_escarpment, defending_minefield)
 {
   attacker_dice <- 1
